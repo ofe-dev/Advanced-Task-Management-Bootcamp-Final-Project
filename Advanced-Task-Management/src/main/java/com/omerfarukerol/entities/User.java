@@ -11,7 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Data
-@MappedSuperclass
+@Table(name = "users")
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User implements UserDetails {
 
     @Id

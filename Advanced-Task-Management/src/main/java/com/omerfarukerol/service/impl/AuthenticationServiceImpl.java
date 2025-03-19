@@ -1,9 +1,10 @@
 package com.omerfarukerol.service.impl;
 
-import com.omerfarukerol.entities.Admin;
+
+import com.omerfarukerol.entities.User;
 import com.omerfarukerol.models.AuthRequestModel;
 import com.omerfarukerol.models.AuthResponseModel;
-import com.omerfarukerol.repository.AdminRepository;
+import com.omerfarukerol.repository.UserRepository;
 import com.omerfarukerol.security.JWTService;
 import com.omerfarukerol.service.IAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import java.util.Optional;
 public class AuthenticationServiceImpl implements IAuthenticationService {
 
     @Autowired
-    private AdminRepository adminRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -35,7 +36,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword());
             authenticationProvider.authenticate(auth);
 
-            Optional<Admin> optionalUser = adminRepository.findByUsername(request.getUsername());
+            Optional<User> optionalUser = userRepository.findByUsername(request.getUsername());
             String token = jwtService.generateToken(optionalUser.get());
             return new AuthResponseModel(token);
         }catch (Exception e){
