@@ -32,7 +32,7 @@ public class AppConfig {
 
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                Optional<Admin> optional = 	adminRepository.findByUserName(username);
+                Optional<Admin> optional = 	adminRepository.findByUsername(username);
                 if(optional.isEmpty()) {
                     throw new BaseException(new ErrorMessage(MessageType.USERNAME_NOT_FOUND,username));
                 }
