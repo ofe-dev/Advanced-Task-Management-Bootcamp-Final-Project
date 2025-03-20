@@ -6,11 +6,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "attachments")
-public class Attachment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Attachment extends BaseEntity {
 
     @Column(nullable = false)
     private String filePath;

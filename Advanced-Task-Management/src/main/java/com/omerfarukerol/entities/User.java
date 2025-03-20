@@ -1,6 +1,7 @@
 package com.omerfarukerol.entities;
 
 import com.omerfarukerol.enums.RoleType;
+import com.omerfarukerol.exception.BaseException;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,11 +15,7 @@ import java.util.Collections;
 @Table(name = "users")
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User implements UserDetails {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public abstract class User extends BaseEntity implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String username;

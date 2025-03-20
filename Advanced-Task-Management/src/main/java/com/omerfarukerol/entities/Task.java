@@ -12,11 +12,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "tasks")
-public class Task {
+public class Task extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     private String userStoryDescription;

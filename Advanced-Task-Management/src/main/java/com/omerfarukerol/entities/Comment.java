@@ -6,11 +6,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "comments")
-public class Comment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Comment extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
