@@ -1,38 +1,39 @@
 package com.omerfarukerol.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Data
 @Entity
 @Table(name = "projects")
-public class Project extends BaseEntity{
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Project extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
 
-    @Column(length = 1024)
+    @Column(nullable = false)
     private String description;
 
-
-    @OneToOne
-    @JoinColumn(name = "project_manager_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_manager_id", nullable = false)
     private ProjectManager projectManager;
-
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TeamLeader> teamLeaders = new HashSet<>();
 
-
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TeamMember> teamMembers = new HashSet<>();
-
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
