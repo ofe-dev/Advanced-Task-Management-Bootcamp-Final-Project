@@ -1,7 +1,7 @@
 package com.omerfarukerol.service.impl;
 
 
-import com.omerfarukerol.entities.User;
+import com.omerfarukerol.entities.*;
 import com.omerfarukerol.models.AuthRequestModel;
 import com.omerfarukerol.models.AuthResponseModel;
 import com.omerfarukerol.repository.UserRepository;

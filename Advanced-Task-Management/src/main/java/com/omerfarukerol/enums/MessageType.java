@@ -8,7 +8,8 @@ public enum MessageType {
     NO_RECORD_EXIST("101,","No record found"),
     GENERAL_EXCEPTION("201","A general error occurred"),
     TOKEN_IS_EXPIRED("301","Token expired"),
-    USERNAME_NOT_FOUND("401","Username can not find");
+    USERNAME_NOT_FOUND("401","Username can not find"),
+    INVALID_ROLE_TYPE("102","Invalid role type");
 
     private String code;
 
