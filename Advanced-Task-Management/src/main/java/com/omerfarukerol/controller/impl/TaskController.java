@@ -8,6 +8,7 @@ import com.omerfarukerol.models.RootResponse;
 import com.omerfarukerol.service.ITaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class TaskController extends RootBaseController implements ITaskControlle
     private ITaskService taskService;
 
     @PostMapping("/createtask")
+    @PreAuthorize("hasRole('ROLE_PROJECT_MANAGER')")
     @Override
     public RootResponse<CreateTaskResponseModel> createTask(@Valid @RequestBody CreateTaskRequestModel request) {
         return ok(taskService.createTask(request));
