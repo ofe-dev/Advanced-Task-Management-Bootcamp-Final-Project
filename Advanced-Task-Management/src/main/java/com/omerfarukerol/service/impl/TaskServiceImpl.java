@@ -30,6 +30,12 @@ public class TaskServiceImpl implements ITaskService {
     @Autowired
     private ProjectRepository projectRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     @Transactional
     public CreateTaskResponseModel createTask(CreateTaskRequestModel requestModel) {
@@ -91,11 +97,11 @@ public class TaskServiceImpl implements ITaskService {
         Task task = taskRepository.findById(requestModel.getTaskId())
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Task not found")));
 
-        // Get current user
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
 
-        // Check if user has permission to update the task
+
         boolean hasPermission = isUserAuthorizedToUpdateTask(currentUsername, task);
         if (!hasPermission) {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
@@ -163,7 +169,7 @@ public class TaskServiceImpl implements ITaskService {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
                 "Reason is required when changing state to CANCELLED or BLOCKED"));
         }
-        
+
         switch (currentState) {
             case BACKLOG:
                 if (newState != TaskState.IN_ANALYSIS && newState != TaskState.CANCELLED) {
@@ -201,5 +207,53 @@ public class TaskServiceImpl implements ITaskService {
     private void throwInvalidTransitionException(TaskState currentState, TaskState newState) {
         throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
             String.format("Invalid state transition from %s to %s", currentState, newState)));
+    }
+
+    @Override
+    @Transactional
+    public AddCommentResponseModel addComment(AddCommentRequestModel requestModel) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "User not found")));
+
+        Task task = taskRepository.findById(requestModel.getTaskId())
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Task not found")));
+
+        boolean isUserInProject = isUserInProject(currentUser, task);
+        if (!isUserInProject) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
+                "You can only comment on tasks within your project"));
+        }
+
+        Comment comment = new Comment();
+        comment.setContent(requestModel.getContent());
+        comment.setUser(currentUser);
+
+        Comment savedComment = commentRepository.save(comment);
+        task.getComments().add(savedComment);
+        taskRepository.save(task);
+
+        return new AddCommentResponseModel(
+            savedComment.getId(),
+            savedComment.getContent(),
+            new UserDTO(currentUser.getId(), currentUser.getUsername(), currentUser.getRole()),
+            task.getId()
+        );
+    }
+
+    private boolean isUserInProject(User user, Task task) {
+        //Long projectId = task.getProject().getId();
+        if (task.getProjectManager().getId().equals(user.getId())) {
+            return true;
+        }
+        if (task.getTeamLeader().getId().equals(user.getId())) {
+            return true;
+        }
+        if (task.getTeamMember().getId().equals(user.getId())) {
+            return true;
+        }
+        return false;
     }
 }

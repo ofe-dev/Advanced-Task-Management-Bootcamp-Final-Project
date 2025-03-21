@@ -7,6 +7,8 @@ import com.omerfarukerol.models.CreateTaskResponseModel;
 import com.omerfarukerol.models.UpdateTaskStateRequestModel;
 import com.omerfarukerol.models.UpdateTaskStateResponseModel;
 import com.omerfarukerol.models.RootResponse;
+import com.omerfarukerol.models.AddCommentRequestModel;
+import com.omerfarukerol.models.AddCommentResponseModel;
 import com.omerfarukerol.service.ITaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +35,12 @@ public class TaskController extends RootBaseController implements ITaskControlle
     public RootResponse<UpdateTaskStateResponseModel> updateTaskState(
             @Valid @RequestBody UpdateTaskStateRequestModel request) {
         return ok(taskService.updateTaskState(request));
+    }
+
+    @PostMapping("/AddComment")
+    @PreAuthorize("hasAnyRole('ROLE_PROJECT_MANAGER', 'ROLE_TEAM_LEADER', 'ROLE_TEAM_MEMBER')")
+    @Override
+    public RootResponse<AddCommentResponseModel> addComment(@Valid @RequestBody AddCommentRequestModel request) {
+        return ok(taskService.addComment(request));
     }
 } 
