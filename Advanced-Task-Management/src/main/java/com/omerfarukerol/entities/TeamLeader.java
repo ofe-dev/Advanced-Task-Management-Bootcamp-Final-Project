@@ -10,7 +10,7 @@ import lombok.Data;
 public class TeamLeader extends User {
 
     @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id")
     private Project project;
 
     public TeamLeader() {

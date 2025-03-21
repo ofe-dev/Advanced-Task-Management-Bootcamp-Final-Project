@@ -1,6 +1,8 @@
 package com.omerfarukerol.models;
 
 import com.omerfarukerol.enums.RoleType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,14 +10,20 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserRequestModel {
-
+    
+    @NotBlank(message = "Username cannot be empty")
     private String username;
-
+    
+    @NotBlank(message = "Password cannot be empty")
     private String password;
-
+    
+    @NotNull(message = "Role cannot be null")
     private RoleType role;
 
+    private Long projectId;
+
+    private Long teamLeadId;
 }
