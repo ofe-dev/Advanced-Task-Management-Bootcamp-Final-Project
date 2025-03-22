@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectManagerDTO {
-    private Long id;
     private String username;
     private String role;
 } 
