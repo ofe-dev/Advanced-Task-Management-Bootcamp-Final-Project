@@ -138,8 +138,8 @@ public class TaskServiceImpl implements ITaskService {
         responseModel.setState(task.getState());
         responseModel.setPriority(task.getPriority());
         
-
         responseModel.setComments(task.getComments().stream()
+                .filter(comment -> !comment.isDeleted())
                 .map(comment -> new CommentDTO(
                     comment.getId(),
                     comment.getContent(),
@@ -255,5 +255,25 @@ public class TaskServiceImpl implements ITaskService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(DeleteCommentRequestModel requestModel) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "User not found")));
+
+        Comment comment = commentRepository.findByIdAndNotDeleted(requestModel.getCommentId())
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Comment not found or already deleted")));
+
+        if (!comment.getUser().getId().equals(currentUser.getId())) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
+                "You can only delete your own comments"));
+        }
+
+        commentRepository.softDelete(comment.getId());
     }
 }
