@@ -5,13 +5,14 @@ import com.omerfarukerol.enums.MessageType;
 import com.omerfarukerol.enums.RoleType;
 import com.omerfarukerol.exception.BaseException;
 import com.omerfarukerol.exception.ErrorMessage;
-import com.omerfarukerol.models.CreateUserRequestModel;
-import com.omerfarukerol.models.CreateUserResponseModel;
+import com.omerfarukerol.models.*;
 import com.omerfarukerol.repository.ProjectRepository;
 import com.omerfarukerol.repository.UserRepository;
 import com.omerfarukerol.service.IUserOperationsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,5 +91,26 @@ public class UserOperationsService implements IUserOperationsService {
         CreateUserResponseModel responseModel = new CreateUserResponseModel();
         BeanUtils.copyProperties(savedUser, responseModel);
         return responseModel;
+    }
+
+    @Override
+    @Transactional
+    public ChangePasswordResponseModel changePassword(ChangePasswordRequestModel request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.USERNAME_NOT_FOUND, username)));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, "Current password is incorrect"));
+        }
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirmation())) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, "New passwords do not match"));
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return new ChangePasswordResponseModel();
     }
 }
