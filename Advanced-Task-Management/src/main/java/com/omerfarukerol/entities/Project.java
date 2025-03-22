@@ -26,6 +26,9 @@ public class Project extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
+    private String responsibleDepartmentName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProjectState status = ProjectState.IN_PROGRESS;

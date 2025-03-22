@@ -81,7 +81,7 @@ public class TaskServiceImpl implements ITaskService {
         UserDTO teamMemberDTO = new UserDTO(teamMember.getId(), teamMember.getUsername(), teamMember.getRole());
         UserDTO teamLeaderDTO = new UserDTO(teamLeader.getId(), teamLeader.getUsername(), teamLeader.getRole());
         UserDTO projectManagerDTO = new UserDTO(projectManager.getId(), projectManager.getUsername(), projectManager.getRole());
-        ProjectDTO projectDTO = new ProjectDTO(project.getId(), project.getName(), project.getDescription());
+        ProjectDTO projectDTO = new ProjectDTO(project.getId(), project.getName(), project.getDescription(), project.getResponsibleDepartmentName());
 
         responseModel.setTeamMember(teamMemberDTO);
         responseModel.setTeamLeader(teamLeaderDTO);

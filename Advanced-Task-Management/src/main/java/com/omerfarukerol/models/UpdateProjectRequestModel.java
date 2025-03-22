@@ -20,5 +20,7 @@ public class UpdateProjectRequestModel {
     
     private String description;
     
+    private String responsibleDepartmentName;
+    
     private ProjectState status;
 } 

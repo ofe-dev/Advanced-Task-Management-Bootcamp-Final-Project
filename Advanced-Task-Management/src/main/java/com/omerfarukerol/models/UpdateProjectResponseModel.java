@@ -14,6 +14,7 @@ public class UpdateProjectResponseModel {
     private Long id;
     private String name;
     private String description;
+    private String responsibleDepartmentName;
     private ProjectState status;
     private ProjectManagerDTO projectManager;
 } 

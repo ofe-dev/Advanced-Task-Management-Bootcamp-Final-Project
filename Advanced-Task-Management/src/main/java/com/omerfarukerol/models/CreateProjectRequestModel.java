@@ -19,6 +19,9 @@ public class CreateProjectRequestModel {
     @NotBlank(message = "Project description cannot be empty")
     private String description;
     
+    @NotBlank(message = "Responsible department name cannot be empty")
+    private String responsibleDepartmentName;
+    
     @NotNull(message = "Project manager ID cannot be null")
     private Long projectManagerId;
 } 

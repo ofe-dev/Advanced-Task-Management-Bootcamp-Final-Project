@@ -13,5 +13,6 @@ public class CreateProjectResponseModel {
     private Long id;
     private String name;
     private String description;
+    private String responsibleDepartmentName;
     private ProjectManagerDTO projectManager;
 } 

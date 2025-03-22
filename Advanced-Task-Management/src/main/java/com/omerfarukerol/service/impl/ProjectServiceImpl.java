@@ -35,6 +35,7 @@ public class ProjectServiceImpl implements IProjectService {
         Project project = new Project();
         project.setName(requestModel.getName());
         project.setDescription(requestModel.getDescription());
+        project.setResponsibleDepartmentName(requestModel.getResponsibleDepartmentName());
         project.setProjectManager(projectManager);
 
         Project savedProject = projectRepository.save(project);
@@ -70,6 +71,9 @@ public class ProjectServiceImpl implements IProjectService {
         }
         if (requestModel.getDescription() != null) {
             project.setDescription(requestModel.getDescription());
+        }
+        if (requestModel.getResponsibleDepartmentName() != null) {
+            project.setResponsibleDepartmentName(requestModel.getResponsibleDepartmentName());
         }
         if (requestModel.getStatus() != null) {
             validateStateTransition(project.getStatus(), requestModel.getStatus());
