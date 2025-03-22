@@ -14,6 +14,8 @@ import java.util.List;
 @Table(name = "tasks")
 public class Task extends BaseEntity{
 
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
     private String userStoryDescription;

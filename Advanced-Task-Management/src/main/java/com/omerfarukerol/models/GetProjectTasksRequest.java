@@ -1,6 +1,6 @@
 package com.omerfarukerol.models;
 
-import com.omerfarukerol.enums.RoleType;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
-    private String username;
-    private RoleType role;
+public class GetProjectTasksRequest {
+    
+    @NotNull(message = "Project ID cannot be null")
+    private Long projectId;
 } 

@@ -7,11 +7,15 @@ import com.omerfarukerol.models.CreateProjectResponseModel;
 import com.omerfarukerol.models.UpdateProjectRequestModel;
 import com.omerfarukerol.models.UpdateProjectResponseModel;
 import com.omerfarukerol.models.RootResponse;
+import com.omerfarukerol.models.TaskDetailResponseModel;
+import com.omerfarukerol.models.GetProjectTasksRequest;
 import com.omerfarukerol.service.IProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/project")
@@ -31,5 +35,11 @@ public class ProjectController extends RootBaseController implements IProjectCon
     @Override
     public RootResponse<UpdateProjectResponseModel> updateProject(@Valid @RequestBody UpdateProjectRequestModel request) {
         return ok(projectService.updateProject(request));
+    }
+
+    @GetMapping("/GetProjectTasks")
+    @PreAuthorize("hasRole('ROLE_PROJECT_MANAGER')")
+    public RootResponse<List<TaskDetailResponseModel>> getProjectTasks(@Valid @RequestBody GetProjectTasksRequest request) {
+        return ok(projectService.getProjectTasks(request));
     }
 } 

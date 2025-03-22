@@ -15,6 +15,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CreateTaskRequestModel {
     
+    @NotBlank(message = "Task title cannot be empty")
+    private String title;
+    
     @NotBlank(message = "User story description cannot be empty")
     private String userStoryDescription;
     

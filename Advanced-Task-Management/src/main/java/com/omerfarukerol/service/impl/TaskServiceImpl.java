@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,6 +66,7 @@ public class TaskServiceImpl implements ITaskService {
         }
 
         Task task = new Task();
+        task.setTitle(requestModel.getTitle());
         task.setUserStoryDescription(requestModel.getUserStoryDescription());
         task.setAcceptanceCriteria(requestModel.getAcceptanceCriteria());
         task.setState(TaskState.BACKLOG);
@@ -78,9 +81,9 @@ public class TaskServiceImpl implements ITaskService {
         CreateTaskResponseModel responseModel = new CreateTaskResponseModel();
         BeanUtils.copyProperties(savedTask, responseModel);
 
-        UserDTO teamMemberDTO = new UserDTO(teamMember.getId(), teamMember.getUsername(), teamMember.getRole());
-        UserDTO teamLeaderDTO = new UserDTO(teamLeader.getId(), teamLeader.getUsername(), teamLeader.getRole());
-        UserDTO projectManagerDTO = new UserDTO(projectManager.getId(), projectManager.getUsername(), projectManager.getRole());
+        UserDTO teamMemberDTO = new UserDTO(teamMember.getUsername(), teamMember.getRole());
+        UserDTO teamLeaderDTO = new UserDTO( teamLeader.getUsername(), teamLeader.getRole());
+        UserDTO projectManagerDTO = new UserDTO(projectManager.getUsername(), projectManager.getRole());
         ProjectDTO projectDTO = new ProjectDTO(project.getId(), project.getName(), project.getDescription(), project.getResponsibleDepartmentName());
 
         responseModel.setTeamMember(teamMemberDTO);
@@ -138,22 +141,35 @@ public class TaskServiceImpl implements ITaskService {
         responseModel.setState(task.getState());
         responseModel.setPriority(task.getPriority());
         
-        responseModel.setComments(task.getComments().stream()
-                .filter(comment -> !comment.isDeleted())
-                .map(comment -> new CommentDTO(
-                    comment.getId(),
+        List<CommentDTO> comments = new ArrayList<>();
+        for (Comment comment : task.getComments()) {
+            if (!comment.isDeleted()) {
+                CommentDTO commentDTO = new CommentDTO(
                     comment.getContent(),
-                    new UserDTO(comment.getUser().getId(), comment.getUser().getUsername(), comment.getUser().getRole())))
-                .collect(Collectors.toList()));
+                    new UserDTO(
+                        comment.getUser().getUsername(),
+                        comment.getUser().getRole()
+                    )
+                );
+                comments.add(commentDTO);
+            }
+        }
+        responseModel.setComments(comments);
 
-        responseModel.setAttachments(task.getAttachments().stream()
-                .map(attachment -> new AttachmentDTO(attachment.getId(), attachment.getFilePath()))
-                .collect(Collectors.toList()));
+        List<AttachmentDTO> attachments = new ArrayList<>();
+        for (Attachment attachment : task.getAttachments()) {
+            AttachmentDTO attachmentDTO = new AttachmentDTO(
+                attachment.getId(),
+                attachment.getFilePath()
+            );
+            attachments.add(attachmentDTO);
+        }
+        responseModel.setAttachments(attachments);
 
         responseModel.setTeamMember(new UserDTO(
-            task.getTeamMember().getId(),
             task.getTeamMember().getUsername(),
-            task.getTeamMember().getRole()));
+            task.getTeamMember().getRole()
+        ));
         
         return responseModel;
     }
@@ -236,9 +252,11 @@ public class TaskServiceImpl implements ITaskService {
         taskRepository.save(task);
 
         return new AddCommentResponseModel(
-            savedComment.getId(),
             savedComment.getContent(),
-            new UserDTO(currentUser.getId(), currentUser.getUsername(), currentUser.getRole()),
+            new UserDTO(
+                currentUser.getUsername(),
+                currentUser.getRole()
+            ),
             task.getId()
         );
     }

@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddCommentResponseModel {
-    private Long id;
     private String content;
     private UserDTO user;
     private Long taskId;
