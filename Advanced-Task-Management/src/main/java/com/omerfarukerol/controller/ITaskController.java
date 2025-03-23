@@ -8,10 +8,13 @@ import com.omerfarukerol.models.RootResponse;
 import com.omerfarukerol.models.AddCommentRequestModel;
 import com.omerfarukerol.models.AddCommentResponseModel;
 import com.omerfarukerol.models.DeleteCommentRequestModel;
+import com.omerfarukerol.models.AttachmentDTO;
+import com.omerfarukerol.models.AttachFileRequest;
 
 public interface ITaskController {
     RootResponse<CreateTaskResponseModel> createTask(CreateTaskRequestModel request);
     RootResponse<UpdateTaskStateResponseModel> updateTaskState(UpdateTaskStateRequestModel request);
     RootResponse<AddCommentResponseModel> addComment(AddCommentRequestModel request);
     RootResponse<Void> deleteComment(DeleteCommentRequestModel request);
+    RootResponse<AttachmentDTO> attachFile(AttachFileRequest request);
 } 

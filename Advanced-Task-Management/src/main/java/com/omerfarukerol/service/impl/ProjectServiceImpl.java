@@ -207,8 +207,11 @@ public class ProjectServiceImpl implements IProjectService {
         List<AttachmentDTO> attachments = new ArrayList<>();
         for (Attachment attachment : task.getAttachments()) {
             AttachmentDTO attachmentDTO = new AttachmentDTO(
-                attachment.getId(),
-                attachment.getFilePath()
+                attachment.getFilePath(),
+                new UserDTO(
+                    attachment.getUser().getUsername(),
+                    attachment.getUser().getRole()
+                )
             );
             attachments.add(attachmentDTO);
         }

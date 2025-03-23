@@ -10,11 +10,15 @@ import com.omerfarukerol.models.RootResponse;
 import com.omerfarukerol.models.AddCommentRequestModel;
 import com.omerfarukerol.models.AddCommentResponseModel;
 import com.omerfarukerol.models.DeleteCommentRequestModel;
+import com.omerfarukerol.models.AttachFileRequest;
+import com.omerfarukerol.models.AttachmentDTO;
 import com.omerfarukerol.service.ITaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/task")
@@ -51,5 +55,12 @@ public class TaskController extends RootBaseController implements ITaskControlle
     public RootResponse<Void> deleteComment(@Valid @RequestBody DeleteCommentRequestModel request) {
         taskService.deleteComment(request);
         return ok(null);
+    }
+
+    @PostMapping("/AttachFile")
+    @PreAuthorize("hasAnyRole('ROLE_PROJECT_MANAGER', 'ROLE_TEAM_LEADER', 'ROLE_TEAM_MEMBER')")
+    @Override
+    public RootResponse<AttachmentDTO> attachFile(@Valid @ModelAttribute AttachFileRequest request) {
+        return ok(taskService.attachFile(request));
     }
 } 
