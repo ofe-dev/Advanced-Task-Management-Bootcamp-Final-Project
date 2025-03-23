@@ -11,6 +11,7 @@ import com.omerfarukerol.models.DeleteCommentRequestModel;
 import com.omerfarukerol.models.AttachmentDTO;
 import com.omerfarukerol.models.AttachFileRequest;
 import com.omerfarukerol.models.DeleteFileRequest;
+import com.omerfarukerol.models.UpdateTaskPriorityRequest;
 
 public interface ITaskController {
     RootResponse<CreateTaskResponseModel> createTask(CreateTaskRequestModel request);
@@ -19,4 +20,5 @@ public interface ITaskController {
     RootResponse<Void> deleteComment(DeleteCommentRequestModel request);
     RootResponse<AttachmentDTO> attachFile(AttachFileRequest request);
     RootResponse<Void> deleteFile(DeleteFileRequest request);
+    RootResponse<UpdateTaskStateResponseModel> updateTaskPriority(UpdateTaskPriorityRequest request);
 } 

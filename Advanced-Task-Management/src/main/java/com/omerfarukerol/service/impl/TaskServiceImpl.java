@@ -45,6 +45,14 @@ public class TaskServiceImpl implements ITaskService {
     @Autowired
     private AttachmentRepository attachmentRepository;
 
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        
+        return userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "User not found")));
+    }
+
     @Override
     @Transactional
     public CreateTaskResponseModel createTask(CreateTaskRequestModel requestModel) {
@@ -107,11 +115,7 @@ public class TaskServiceImpl implements ITaskService {
         Task task = taskRepository.findById(requestModel.getTaskId())
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Task not found")));
 
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-
+        String currentUsername = getCurrentUser().getUsername();
         boolean hasPermission = isUserAuthorizedToUpdateTask(currentUsername, task);
         if (!hasPermission) {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
@@ -240,11 +244,7 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     @Transactional
     public AddCommentResponseModel addComment(AddCommentRequestModel requestModel) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-        User currentUser = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "User not found")));
+        User currentUser = getCurrentUser();
 
         Task task = taskRepository.findById(requestModel.getTaskId())
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Task not found")));
@@ -290,11 +290,7 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     @Transactional
     public void deleteComment(DeleteCommentRequestModel requestModel) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-        User currentUser = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "User not found")));
+        User currentUser = getCurrentUser();
 
         Comment comment = commentRepository.findByIdAndNotDeleted(requestModel.getCommentId())
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Comment not found or already deleted")));
@@ -310,16 +306,12 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     @Transactional
     public AttachmentDTO attachFile(AttachFileRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
+        User currentUser = getCurrentUser();
 
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Task not found")));
 
-        User currentUser = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "User not found")));
-
-        if (!isUserInProject(task.getProject(), currentUsername)) {
+        if (!isUserInProject(task.getProject(), currentUser.getUsername())) {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
                 "You must be a member of the project to attach files to this task"));
         }
@@ -362,17 +354,44 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     @Transactional
     public void deleteFile(DeleteFileRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
+        User currentUser = getCurrentUser();
 
         Attachment attachment = attachmentRepository.findByIdAndNotDeleted(request.getAttachmentId())
                 .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Attachment not found or already deleted")));
 
-        if (!attachment.getUser().getUsername().equals(currentUsername)) {
+        if (!attachment.getUser().getUsername().equals(currentUser.getUsername())) {
             throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
                 "You can only delete files that you have uploaded"));
         }
 
         attachmentRepository.softDelete(attachment.getId());
+    }
+
+    @Override
+    @Transactional
+    public UpdateTaskStateResponseModel updateTaskPriority(UpdateTaskPriorityRequest request) {
+        User currentUser = getCurrentUser();
+
+        Task task = taskRepository.findById(request.getTaskId())
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Task not found")));
+
+        boolean isAuthorized = false;
+        
+        if (task.getProjectManager().getId().equals(currentUser.getId())) {
+            isAuthorized = true;
+        }
+        else if (task.getTeamLeader().getId().equals(currentUser.getId())) {
+            isAuthorized = true;
+        }
+
+        if (!isAuthorized) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
+                "Only Project Managers and Team Leaders can update task priority"));
+        }
+
+        task.setPriority(request.getNewPriority());
+        Task updatedTask = taskRepository.save(task);
+        
+        return convertToResponseModel(updatedTask);
     }
 }

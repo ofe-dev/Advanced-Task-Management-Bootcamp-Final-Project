@@ -13,6 +13,7 @@ import com.omerfarukerol.models.DeleteCommentRequestModel;
 import com.omerfarukerol.models.AttachFileRequest;
 import com.omerfarukerol.models.AttachmentDTO;
 import com.omerfarukerol.models.DeleteFileRequest;
+import com.omerfarukerol.models.UpdateTaskPriorityRequest;
 import com.omerfarukerol.service.ITaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +72,12 @@ public class TaskController extends RootBaseController implements ITaskControlle
     public RootResponse<Void> deleteFile(@Valid @RequestBody DeleteFileRequest request) {
         taskService.deleteFile(request);
         return ok(null);
+    }
+
+    @PutMapping("/UpdatePriority")
+    @PreAuthorize("hasAnyRole('ROLE_PROJECT_MANAGER', 'ROLE_TEAM_LEADER')")
+    @Override
+    public RootResponse<UpdateTaskStateResponseModel> updateTaskPriority(@Valid @RequestBody UpdateTaskPriorityRequest request) {
+        return ok(taskService.updateTaskPriority(request));
     }
 } 
