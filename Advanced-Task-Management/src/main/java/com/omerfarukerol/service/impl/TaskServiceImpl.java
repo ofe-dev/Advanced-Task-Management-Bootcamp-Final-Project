@@ -274,7 +274,6 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     private boolean isUserInProject(User user, Task task) {
-        //Long projectId = task.getProject().getId();
         if (task.getProjectManager().getId().equals(user.getId())) {
             return true;
         }

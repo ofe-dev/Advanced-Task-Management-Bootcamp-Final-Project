@@ -32,7 +32,7 @@ public class UserOperationsController implements IUserOperationsController {
         return RootResponse.ok(userOperationsService.createUser(request));
     }
 
-    @PostMapping("/ChangePassword")
+    @PutMapping("/ChangePassword")
     public RootResponse<ChangePasswordResponseModel> changePassword(@Valid @RequestBody ChangePasswordRequestModel request) {
         return RootResponse.ok(userOperationsService.changePassword(request));
     }
