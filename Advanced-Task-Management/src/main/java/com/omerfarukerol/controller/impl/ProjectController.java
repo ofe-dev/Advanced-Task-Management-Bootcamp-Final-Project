@@ -49,13 +49,13 @@ public class ProjectController extends RootBaseController implements IProjectCon
 
     @GetMapping("/GetTeamTasks")
     @PreAuthorize("hasRole('TEAM_LEADER')")
-    public ResponseEntity<List<TaskDetailResponseModel>> getTeamTasks(@Valid @RequestBody GetTeamTasksRequest request) {
-        return ResponseEntity.ok(projectService.getTeamTasks(request));
+    public ResponseEntity<List<TaskDetailResponseModel>> getTeamTasks() {
+        return ResponseEntity.ok(projectService.getTeamTasks(new GetTeamTasksRequest()));
     }
 
     @GetMapping("/GetMemberTasks")
     @PreAuthorize("hasRole('TEAM_MEMBER')")
-    public ResponseEntity<List<TaskDetailResponseModel>> getMemberTasks(@Valid @RequestBody GetMemberTasksRequest request) {
-        return ResponseEntity.ok(projectService.getMemberTasks(request));
+    public ResponseEntity<List<TaskDetailResponseModel>> getMemberTasks() {
+        return ResponseEntity.ok(projectService.getMemberTasks(new GetMemberTasksRequest()));
     }
 } 
