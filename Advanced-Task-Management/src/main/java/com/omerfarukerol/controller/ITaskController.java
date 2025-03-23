@@ -10,6 +10,7 @@ import com.omerfarukerol.models.AddCommentResponseModel;
 import com.omerfarukerol.models.DeleteCommentRequestModel;
 import com.omerfarukerol.models.AttachmentDTO;
 import com.omerfarukerol.models.AttachFileRequest;
+import com.omerfarukerol.models.DeleteFileRequest;
 
 public interface ITaskController {
     RootResponse<CreateTaskResponseModel> createTask(CreateTaskRequestModel request);
@@ -17,4 +18,5 @@ public interface ITaskController {
     RootResponse<AddCommentResponseModel> addComment(AddCommentRequestModel request);
     RootResponse<Void> deleteComment(DeleteCommentRequestModel request);
     RootResponse<AttachmentDTO> attachFile(AttachFileRequest request);
+    RootResponse<Void> deleteFile(DeleteFileRequest request);
 } 

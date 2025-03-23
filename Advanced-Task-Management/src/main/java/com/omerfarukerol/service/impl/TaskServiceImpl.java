@@ -165,14 +165,16 @@ public class TaskServiceImpl implements ITaskService {
 
         List<AttachmentDTO> attachments = new ArrayList<>();
         for (Attachment attachment : task.getAttachments()) {
-            AttachmentDTO attachmentDTO = new AttachmentDTO(
-                attachment.getFilePath(),
-                new UserDTO(
-                    attachment.getUser().getUsername(),
-                    attachment.getUser().getRole()
-                )
-            );
-            attachments.add(attachmentDTO);
+            if (!attachment.isDeleted()) {
+                AttachmentDTO attachmentDTO = new AttachmentDTO(
+                    attachment.getFilePath(),
+                    new UserDTO(
+                        attachment.getUser().getUsername(),
+                        attachment.getUser().getRole()
+                    )
+                );
+                attachments.add(attachmentDTO);
+            }
         }
         responseModel.setAttachments(attachments);
 
@@ -355,5 +357,22 @@ public class TaskServiceImpl implements ITaskService {
         }
         
         return false;
+    }
+
+    @Override
+    @Transactional
+    public void deleteFile(DeleteFileRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        Attachment attachment = attachmentRepository.findByIdAndNotDeleted(request.getAttachmentId())
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Attachment not found or already deleted")));
+
+        if (!attachment.getUser().getUsername().equals(currentUsername)) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
+                "You can only delete files that you have uploaded"));
+        }
+
+        attachmentRepository.softDelete(attachment.getId());
     }
 }

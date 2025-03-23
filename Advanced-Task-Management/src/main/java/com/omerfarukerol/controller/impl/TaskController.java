@@ -12,6 +12,7 @@ import com.omerfarukerol.models.AddCommentResponseModel;
 import com.omerfarukerol.models.DeleteCommentRequestModel;
 import com.omerfarukerol.models.AttachFileRequest;
 import com.omerfarukerol.models.AttachmentDTO;
+import com.omerfarukerol.models.DeleteFileRequest;
 import com.omerfarukerol.service.ITaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,5 +63,13 @@ public class TaskController extends RootBaseController implements ITaskControlle
     @Override
     public RootResponse<AttachmentDTO> attachFile(@Valid @ModelAttribute AttachFileRequest request) {
         return ok(taskService.attachFile(request));
+    }
+
+    @DeleteMapping("/DeleteFile")
+    @PreAuthorize("hasAnyRole('ROLE_PROJECT_MANAGER', 'ROLE_TEAM_LEADER', 'ROLE_TEAM_MEMBER')")
+    @Override
+    public RootResponse<Void> deleteFile(@Valid @RequestBody DeleteFileRequest request) {
+        taskService.deleteFile(request);
+        return ok(null);
     }
 } 

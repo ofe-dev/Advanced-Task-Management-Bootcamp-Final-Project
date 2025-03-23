@@ -9,6 +9,7 @@ import com.omerfarukerol.models.AddCommentResponseModel;
 import com.omerfarukerol.models.DeleteCommentRequestModel;
 import com.omerfarukerol.models.AttachFileRequest;
 import com.omerfarukerol.models.AttachmentDTO;
+import com.omerfarukerol.models.DeleteFileRequest;
 
 public interface ITaskService {
     CreateTaskResponseModel createTask(CreateTaskRequestModel requestModel);
@@ -16,4 +17,5 @@ public interface ITaskService {
     AddCommentResponseModel addComment(AddCommentRequestModel requestModel);
     void deleteComment(DeleteCommentRequestModel requestModel);
     AttachmentDTO attachFile(AttachFileRequest request);
+    void deleteFile(DeleteFileRequest request);
 }

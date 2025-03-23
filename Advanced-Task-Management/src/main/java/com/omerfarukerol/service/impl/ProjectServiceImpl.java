@@ -205,18 +205,22 @@ public class ProjectServiceImpl implements IProjectService {
         response.setCommentCount(activeCommentCount);
         
         List<AttachmentDTO> attachments = new ArrayList<>();
+        int activeAttachmentCount = 0;
         for (Attachment attachment : task.getAttachments()) {
-            AttachmentDTO attachmentDTO = new AttachmentDTO(
-                attachment.getFilePath(),
-                new UserDTO(
-                    attachment.getUser().getUsername(),
-                    attachment.getUser().getRole()
-                )
-            );
-            attachments.add(attachmentDTO);
+            if (!attachment.isDeleted()) {
+                AttachmentDTO attachmentDTO = new AttachmentDTO(
+                    attachment.getFilePath(),
+                    new UserDTO(
+                        attachment.getUser().getUsername(),
+                        attachment.getUser().getRole()
+                    )
+                );
+                attachments.add(attachmentDTO);
+                activeAttachmentCount++;
+            }
         }
         response.setAttachments(attachments);
-        response.setAttachmentCount(attachments.size());
+        response.setAttachmentCount(activeAttachmentCount);
         
         return response;
     }
