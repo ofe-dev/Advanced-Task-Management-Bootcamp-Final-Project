@@ -5,6 +5,8 @@ import com.omerfarukerol.entities.ProjectManager;
 import com.omerfarukerol.entities.Task;
 import com.omerfarukerol.entities.Comment;
 import com.omerfarukerol.entities.Attachment;
+import com.omerfarukerol.entities.TeamLeader;
+import com.omerfarukerol.entities.TeamMember;
 import com.omerfarukerol.enums.MessageType;
 import com.omerfarukerol.enums.ProjectState;
 import com.omerfarukerol.exception.BaseException;
@@ -12,6 +14,9 @@ import com.omerfarukerol.exception.ErrorMessage;
 import com.omerfarukerol.models.*;
 import com.omerfarukerol.repository.ProjectManagerRepository;
 import com.omerfarukerol.repository.ProjectRepository;
+import com.omerfarukerol.repository.TeamLeaderRepository;
+import com.omerfarukerol.repository.TaskRepository;
+import com.omerfarukerol.repository.TeamMemberRepository;
 import com.omerfarukerol.service.IProjectService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,15 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Autowired
     private ProjectManagerRepository projectManagerRepository;
+
+    @Autowired
+    private TeamLeaderRepository teamLeaderRepository;
+
+    @Autowired
+    private TeamMemberRepository teamMemberRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Override
     @Transactional
@@ -112,50 +126,96 @@ public class ProjectServiceImpl implements IProjectService {
         List<TaskDetailResponseModel> taskDetails = new ArrayList<>();
 
         for (Task task : project.getTasks()) {
-            TaskDetailResponseModel response = new TaskDetailResponseModel();
-
-            response.setTitle(task.getTitle());
-            response.setUserStoryDescription(task.getUserStoryDescription());
-            response.setAcceptanceCriteria(task.getAcceptanceCriteria());
-            response.setState(task.getState());
-            response.setPriority(task.getPriority());
-            
-            response.setTeamMemberUsername(task.getTeamMember().getUsername());
-            response.setTeamLeaderUsername(task.getTeamLeader().getUsername());
-            
-            List<CommentDTO> comments = new ArrayList<>();
-            int activeCommentCount = 0;
-            for (Comment comment : task.getComments()) {
-                if (!comment.isDeleted()) {
-                    CommentDTO commentDTO = new CommentDTO(
-                        comment.getContent(),
-                        new UserDTO(
-                            comment.getUser().getUsername(),
-                            comment.getUser().getRole()
-                        )
-                    );
-                    comments.add(commentDTO);
-                    activeCommentCount++;
-                }
-            }
-            response.setComments(comments);
-            response.setCommentCount(activeCommentCount);
-            
-            List<AttachmentDTO> attachments = new ArrayList<>();
-            for (Attachment attachment : task.getAttachments()) {
-                AttachmentDTO attachmentDTO = new AttachmentDTO(
-                    attachment.getId(),
-                    attachment.getFilePath()
-                );
-                attachments.add(attachmentDTO);
-            }
-            response.setAttachments(attachments);
-            response.setAttachmentCount(attachments.size());
-            
-            taskDetails.add(response);
+            taskDetails.add(convertTaskToDetailResponse(task));
         }
 
         return taskDetails;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskDetailResponseModel> getTeamTasks(GetTeamTasksRequest requestModel) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        TeamLeader teamLeader = teamLeaderRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Team Leader not found")));
+
+        List<TaskDetailResponseModel> taskDetails = new ArrayList<>();
+        
+        Project project = teamLeader.getProject();
+        for (Task task : project.getTasks()) {
+            if (task.getTeamLeader().getUsername().equals(currentUsername)) {
+                taskDetails.add(convertTaskToDetailResponse(task));
+            }
+        }
+
+        return taskDetails;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskDetailResponseModel> getMemberTasks(GetMemberTasksRequest requestModel) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        TeamMember teamMember = teamMemberRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new BaseException(new ErrorMessage(MessageType.NO_RECORD_EXIST, "Team Member not found")));
+
+        List<TaskDetailResponseModel> taskDetails = new ArrayList<>();
+        
+        Project project = teamMember.getProject();
+        for (Task task : project.getTasks()) {
+            if (task.getTeamMember().getUsername().equals(currentUsername)) {
+                taskDetails.add(convertTaskToDetailResponse(task));
+            }
+        }
+
+        return taskDetails;
+    }
+
+    private TaskDetailResponseModel convertTaskToDetailResponse(Task task) {
+        TaskDetailResponseModel response = new TaskDetailResponseModel();
+
+        response.setTitle(task.getTitle());
+        response.setUserStoryDescription(task.getUserStoryDescription());
+        response.setAcceptanceCriteria(task.getAcceptanceCriteria());
+        response.setState(task.getState());
+        response.setPriority(task.getPriority());
+        
+        response.setTeamMemberUsername(task.getTeamMember().getUsername());
+        response.setTeamLeaderUsername(task.getTeamLeader().getUsername());
+        
+        List<CommentDTO> comments = new ArrayList<>();
+        int activeCommentCount = 0;
+        for (Comment comment : task.getComments()) {
+            if (!comment.isDeleted()) {
+                CommentDTO commentDTO = new CommentDTO(
+                    comment.getContent(),
+                    new UserDTO(
+                        comment.getUser().getUsername(),
+                        comment.getUser().getRole()
+                    )
+                );
+                comments.add(commentDTO);
+                activeCommentCount++;
+            }
+        }
+        response.setComments(comments);
+        response.setCommentCount(activeCommentCount);
+        
+        List<AttachmentDTO> attachments = new ArrayList<>();
+        for (Attachment attachment : task.getAttachments()) {
+            AttachmentDTO attachmentDTO = new AttachmentDTO(
+                attachment.getId(),
+                attachment.getFilePath()
+            );
+            attachments.add(attachmentDTO);
+        }
+        response.setAttachments(attachments);
+        response.setAttachmentCount(attachments.size());
+        
+        return response;
     }
 
     private Project findAndValidateProject(Long projectId, String currentUsername) {
