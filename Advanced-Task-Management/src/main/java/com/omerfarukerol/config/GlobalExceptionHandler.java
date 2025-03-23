@@ -21,13 +21,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public ResponseEntity<RootResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
-        List<String> errors = new ArrayList<>();
+    public ResponseEntity<RootResponse<Map<String, List<String>>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+        Map<String, List<String>> validationErrors = new HashMap<>();
+        
         for (ObjectError error : ex.getBindingResult().getAllErrors()) {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            errors.add(fieldName + ": " + errorMessage);
+            
+            validationErrors.computeIfAbsent(fieldName, k -> new ArrayList<>()).add(errorMessage);
         }
-        return ResponseEntity.badRequest().body(RootResponse.error(String.join(", ", errors)));
+        
+        return ResponseEntity.badRequest().body(RootResponse.validationError(validationErrors));
     }
 }
