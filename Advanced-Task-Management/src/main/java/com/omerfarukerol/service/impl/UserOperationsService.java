@@ -31,7 +31,38 @@ public class UserOperationsService implements IUserOperationsService {
 
     @Override
     @Transactional
+    public CreateUserResponseModel createAdmin(CreateUserRequestModel requestModel) {
+
+        if (userRepository.existsByUsername(requestModel.getUsername())) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
+                "Username already exists"));
+        }
+
+        if (requestModel.getRole() != RoleType.ROLE_ADMIN) {
+            throw new BaseException(new ErrorMessage(MessageType.INVALID_ROLE_TYPE, 
+                "Only ROLE_ADMIN is allowed for this endpoint"));
+        }
+
+        Admin admin = new Admin();
+        admin.setUsername(requestModel.getUsername());
+        admin.setPassword(passwordEncoder.encode(requestModel.getPassword()));
+        admin.setRole(RoleType.ROLE_ADMIN);
+
+        User savedAdmin = userRepository.save(admin);
+
+        CreateUserResponseModel responseModel = new CreateUserResponseModel();
+        BeanUtils.copyProperties(savedAdmin, responseModel);
+        return responseModel;
+    }
+
+    @Override
+    @Transactional
     public CreateUserResponseModel createUser(CreateUserRequestModel requestModel) {
+        if (userRepository.existsByUsername(requestModel.getUsername())) {
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION, 
+                "Username already exists"));
+        }
+
         User user;
 
         switch (requestModel.getRole()) {

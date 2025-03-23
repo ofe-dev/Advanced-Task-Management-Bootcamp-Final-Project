@@ -28,6 +28,7 @@ public class ProjectController extends RootBaseController implements IProjectCon
     private IProjectService projectService;
 
     @PostMapping("/CreateProject")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     public RootResponse<CreateProjectResponseModel> createProject(@Valid @RequestBody CreateProjectRequestModel request) {
         return ok(projectService.createProject(request));

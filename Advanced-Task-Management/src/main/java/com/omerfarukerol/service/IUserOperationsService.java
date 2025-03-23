@@ -7,5 +7,6 @@ import com.omerfarukerol.models.CreateUserResponseModel;
 
 public interface IUserOperationsService {
     public CreateUserResponseModel createUser(CreateUserRequestModel requestModel);
+    public CreateUserResponseModel createAdmin(CreateUserRequestModel requestModel);
     public ChangePasswordResponseModel changePassword(ChangePasswordRequestModel request);
 }

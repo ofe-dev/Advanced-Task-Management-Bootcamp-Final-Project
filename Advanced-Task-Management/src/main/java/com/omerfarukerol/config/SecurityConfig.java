@@ -18,7 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    public static final String AUTHENTICATE = "/authenticate";
+    public static final String AUTHENTICATE = "/api/auth/authenticate";
+    public static final String CREATE_ADMIN = "/api/user/CreateAdmin";
 
     @Autowired
     private AuthenticationProvider authenticationProvider;
@@ -33,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(AUTHENTICATE)
+                        request.requestMatchers(AUTHENTICATE, CREATE_ADMIN)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
